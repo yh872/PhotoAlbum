@@ -14,7 +14,7 @@ public class Photos extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("View/LoginView.fxml"));
         primaryStage.setTitle("Photos App");
-        primaryStage.setScene(new Scene(root, 400, 300));
+        primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
     }
 

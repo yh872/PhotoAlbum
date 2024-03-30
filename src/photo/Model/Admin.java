@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 public class Admin implements Serializable {
     static final long serialVersionUID = 1L;
-    public static ArrayList<User> listofUsers;
+    public static ArrayList<User> listofUsers = new ArrayList<>();
     public Admin(){
-        listofUsers = new ArrayList<>();
     }
     
 
@@ -17,5 +16,6 @@ public class Admin implements Serializable {
     public void DeleteUser(User u){
         listofUsers.remove(u);
     }
+
 
 }
