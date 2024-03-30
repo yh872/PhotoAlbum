@@ -1,15 +1,18 @@
 package photo;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+
+public class Photos extends Application {
+    
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("View/hellofx.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("View/LoginView.fxml"));
         primaryStage.setTitle("Photos App");
         primaryStage.setScene(new Scene(root, 400, 300));
         primaryStage.show();
@@ -17,6 +20,7 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
+        
         launch(args);
     }
 }
