@@ -1,9 +1,8 @@
 package photo.Model;
 
 import java.util.ArrayList;
-import java.io.Serializable;
 import java.util.*;
-public class Photo implements Serializable{
+public class Photo{
     ArrayList<Album> listofAlbums;
     public ArrayList<Tag> listofTags;
     Calendar date;

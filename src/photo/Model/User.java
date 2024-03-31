@@ -1,10 +1,8 @@
 package photo.Model;
-
-import java.io.*;
 import java.util.ArrayList;
 
-public class User implements Serializable{
-    static final long serialVersionUID = 1L;
+public class User{
+   
     private String username;
     private ArrayList<Album> listofAlbums;
 

@@ -1,6 +1,5 @@
 package photo.Controller;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import photo.Model.Admin;
-import photo.Model.Album;
 import photo.Model.User;
 
 public class LoginController {

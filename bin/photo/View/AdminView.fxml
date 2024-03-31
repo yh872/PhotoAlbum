@@ -19,8 +19,8 @@
       <HBox layoutX="92.0" layoutY="158.0" prefHeight="100.0" prefWidth="423.0">
          <children>
             <Button mnemonicParsing="false"  prefHeight="50.0" prefWidth="150.0" text="User List" onAction = "#DisplayUserList"/>
-            <Button mnemonicParsing="false"  prefHeight="50.0" prefWidth="106.0" text="Delete User" textFill="#e41d1d" />
-            <Button mnemonicParsing="false"  prefHeight="50.0" prefWidth="133.0" text="Create New User" textFill="#5967d0" />
+            <Button mnemonicParsing="false"  prefHeight="50.0" prefWidth="106.0" text="Delete User" textFill="#e41d1d" onAction = "#getDeletedUsername"/>
+            <Button mnemonicParsing="false"  prefHeight="50.0" prefWidth="133.0" text="Create New User" textFill="#5967d0" onAction = "#AddNewUser" />
          </children>
       </HBox>
    </children>

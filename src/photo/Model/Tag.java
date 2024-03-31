@@ -1,9 +1,6 @@
 package photo.Model;
 
-import java.io.Serializable;
-
-public class Tag implements Serializable {
-    static final long serialVersionUID = 1L;
+public class Tag{
    private String name;
    private String value;
 

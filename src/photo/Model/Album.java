@@ -33,6 +33,9 @@ public class Album {
         }
         thumbnail = p;
     }
+    public ArrayList<Photo> getAllPhotos(){
+        return listofPhotos;
+    }
     public ArrayList<Photo> SearchbyDate(Calendar date1, Calendar date2){
         ArrayList<Photo> result = new ArrayList<>();
         for (int i = 0; i < listofPhotos.size(); i++){
