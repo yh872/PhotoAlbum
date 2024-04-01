@@ -1,6 +1,8 @@
 package photo.Model;
 
-public class Tag{
+import java.io.Serializable;
+
+public class Tag implements Serializable{
    private String name;
    private String value;
 
@@ -8,10 +10,8 @@ public class Tag{
     this.name = name;
     this.value = value;
    }
-   public String[] getTag(){
-        String[] tag = new String[2];
-        tag[0] = name; tag[1] = value;
-        return tag;
+   public String getTag(){
+       return name + "=" + value;
     }
     public void setTag(String n, String v){
         name = n; value = v;

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photo.Controller.UserController">
+   <children>
+      <VBox layoutX="3.0" layoutY="63.0" prefHeight="200.0" prefWidth="119.0">
+         <children>
+            <Button fx:id="create" mnemonicParsing="false" onAction="#createAlbum" prefHeight="44.0" prefWidth="119.0" text="Create album">
+               <font>
+                  <Font name="System Italic" size="13.0" />
+               </font>
+            </Button>
+            <Button fx:id="rename" mnemonicParsing="false" onAction="#renameAlbum" prefHeight="42.0" prefWidth="119.0" text="Rename album" />
+            <Button fx:id="open" mnemonicParsing="false" onAction="#openAlbum" prefHeight="39.0" prefWidth="119.0" text="Open a album" />
+            <Button fx:id="delete" mnemonicParsing="false" onAction="#deleteAlbum" prefHeight="42.0" prefWidth="120.0" text="Delete album" />
+         </children>
+      </VBox>
+      <Button fx:id="logout" layoutX="13.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout" prefHeight="30.0" prefWidth="100.0" text="Logout" />
+      <VBox layoutX="14.0" layoutY="293.0" prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <DatePicker fx:id="from" prefHeight="26.0" prefWidth="152.0" promptText="from" />
+            <DatePicker fx:id="to" prefHeight="26.0" prefWidth="152.0" promptText="to" />
+            <Button mnemonicParsing="false" onAction="#searchDate" prefHeight="26.0" prefWidth="89.0" text="Search date" />
+         </children>
+      </VBox>
+      <VBox layoutX="14.0" layoutY="404.0" prefHeight="200.0" prefWidth="234.0">
+         <children>
+            <TextField fx:id="searchTarget" prefHeight="26.0" prefWidth="159.0" promptText="name=Adam" />
+            <ChoiceBox fx:id="TagSearchBox" onAction="#handleChange" prefHeight="26.0" prefWidth="126.0">
+      </ChoiceBox>
+            <Button fx:id="search" mnemonicParsing="false" onAction="#searchTag" prefHeight="26.0" prefWidth="76.0" text="Search tag" />
+         </children>
+      </VBox>
+      <Label layoutX="314.0" layoutY="18.0" prefHeight="50.0" prefWidth="218.0" text="Your Albums" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="29.0" />
+         </font>
+      </Label>
+      <ListView fx:id="albumListView" layoutX="256.0" layoutY="79.0" prefHeight="471.0" prefWidth="430.0" />
+   </children>
+</Pane>

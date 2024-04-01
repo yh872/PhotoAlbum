@@ -61,6 +61,14 @@ public static void getData() throws IOException{
         }
         return false;
     }
+    public static User getUser(String username){
+        for (int i = 0; i < listofUsers.size(); i++){
+            if (listofUsers.get(i).getUsername().equals(username)){
+                return listofUsers.get(i);
+            }
+        }
+        return null;
+    }
 
 
 }

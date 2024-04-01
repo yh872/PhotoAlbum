@@ -6,10 +6,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import photo.Model.Admin;
 import photo.Model.User;
+
 
 public class LoginController {
 
@@ -19,23 +22,15 @@ public class LoginController {
     @FXML
     public void loginButtonClicked(ActionEvent event) {
         String username = usernameField.getText();
-        if (username.equalsIgnoreCase("stock")){
-            try{
-            
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/StockPhotos.fxml"));
-            Parent root = fxmlLoader.load();
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-                 stage.setScene(scene);
-                stage.setTitle("Stock Photos");
-                stage.show();
-                return;
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            }
+        if (username.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Please enter a username.");
+            alert.showAndWait();
+            return;
         }
-           else if (username.equalsIgnoreCase("admin")){
+            if (username.equalsIgnoreCase("admin")){
                 try{
             
                     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AdminView.fxml"));
@@ -54,23 +49,31 @@ public class LoginController {
 
             }
             else{
-                boolean userExists = false;
-                User currentUser = new User(username);
-                for (int i = 0; i < Admin.listofUsers.size(); i++){
-                    if (Admin.listofUsers.get(i).getUsername().equals(username)){
-                        userExists = true;
-                         currentUser = Admin.listofUsers.get(i);
-
+                if (!Admin.containsUser(username))
+                { Admin.AddUser(username);
+                    try {
+	                    Admin.WritetoFile();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+                }
+                try{
+                    UserController.setUser(username);
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/UserView.fxml"));
+                    Parent root = fxmlLoader.load();
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root);
+               
+                         stage.setScene(scene);
+                        stage.setTitle("Welcome to Photos");
+                        stage.show();
+                        return;
+                        
                     }
-                }
-                if (userExists){
-                
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
 
-
-                }
-                else{
-                    Admin.listofUsers.add(currentUser);
-                }
             }
 
         

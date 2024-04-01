@@ -1,12 +1,13 @@
 package photo.Model;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.*;
-public class Photo{
-    ArrayList<Album> listofAlbums;
+public class Photo implements Serializable{
+    public ArrayList<Album> listofAlbums;
     public ArrayList<Tag> listofTags;
-    Calendar date;
-    String caption;
+    public Calendar date;
+   public  String caption;
     public Photo(Calendar date, String caption){
         this.date = date;
         date.set(Calendar.MILLISECOND, 0);
