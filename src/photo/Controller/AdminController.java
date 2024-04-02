@@ -1,7 +1,6 @@
 package photo.Controller;
 
 import java.io.IOException;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +13,7 @@ import javafx.stage.Stage;
 import photo.Model.Admin;
 import photo.Model.User;
 
-public class AdminController {
+public class AdminController{
 
     @FXML
     public void logout(ActionEvent event) {

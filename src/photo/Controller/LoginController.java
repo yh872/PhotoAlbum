@@ -11,7 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import photo.Model.Admin;
-import photo.Model.User;
 
 
 public class LoginController {
@@ -47,6 +46,24 @@ public class LoginController {
                         e.printStackTrace();
                     }
 
+            }
+            else if (username.equalsIgnoreCase("stock")){
+                try{
+
+                    AlbumController.isStock = true;
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
+                    Parent root = fxmlLoader.load();
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root);
+                         stage.setScene(scene);
+                        stage.setTitle("Stock Album");
+                        stage.show();
+                        return;
+                        
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
             }
             else{
                 if (!Admin.containsUser(username))

@@ -35,7 +35,7 @@
       <VBox layoutX="14.0" layoutY="404.0" prefHeight="200.0" prefWidth="234.0">
          <children>
             <TextField fx:id="searchTarget" prefHeight="26.0" prefWidth="159.0" promptText="name=Adam" />
-            <ChoiceBox fx:id="TagSearchBox" onAction="#handleChange" prefHeight="26.0" prefWidth="126.0">
+            <ChoiceBox fx:id="TagSearchBox" onAction="#handleChange" prefHeight="26.0" prefWidth="163.0">
       </ChoiceBox>
             <Button fx:id="search" mnemonicParsing="false" onAction="#searchTag" prefHeight="26.0" prefWidth="76.0" text="Search tag" />
          </children>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="680.0" prefWidth="1019.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photo.Controller.AlbumController">
+    <children>
+      <VBox layoutX="758.0" layoutY="131.0" prefHeight="200.0" prefWidth="229.0">
+         <children>
+            <Button fx:id = "caption" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Edit/Add Caption" onAction = "#setCaption">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+            <Button fx:id = "addTagButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Add Tag" onAction = "#addTag">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+            <Button fx:id = "deleteTagButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Delete Tag" onAction = "#deleteTag">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+        <Pagination fx:id = "pagination" layoutX="7.0" layoutY="140.0" prefHeight="531.0" prefWidth="625.0" />
+      <Label fx:id = "Album_name" layoutX="658.0" layoutY="55.0" prefHeight="47.0" prefWidth="248.0" text="Your Album">
+         <font>
+            <Font name="Arial Bold" size="36.0" />
+         </font>
+      </Label>
+      <Button fx:id = "goBackButton" layoutX="848.0" layoutY="579.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="138.0" text="go back" onAction = "#goBack">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Button>
+
+      <Button fx:id = "slideshow" layoutX="766.0" layoutY="349.0" mnemonicParsing="false" prefHeight="57.0" prefWidth="187.0" text="Slideshow" onAction = "#executeSlideshow">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Button>
+      <Button fx:id = "displayButton" layoutX="539.0" layoutY="349.0" mnemonicParsing="false" prefHeight="57.0" prefWidth="187.0" text="Display Photo" onAction = "#displayPhoto">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Button>
+      <VBox layoutX="538.0" layoutY="132.0" prefHeight="11.0" prefWidth="185.0">
+         <children>
+            <Button fx:id = "addPhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Add Photo" onAction = "#addPhoto">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+            <Button fx:id = "deletePhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="224.0" text="Delete Photo" onAction = "#deletePhoto">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+            <Button fx:id = "copyPhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Copy Photo" onAction = "#copyPhoto">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <Pane layoutX="11.0" layoutY="37.0" prefHeight="574.0" prefWidth="502.0">
+         <children>
+            <ImageView fx:id = "img1" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id = "img2" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id = "img3" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id = "img4" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id = "img5" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id = "img6" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </Pane>
+    </children>
+</Pane>
