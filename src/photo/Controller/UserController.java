@@ -1,6 +1,7 @@
 package photo.Controller;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -24,7 +25,8 @@ import photo.Model.Admin;
 import photo.Model.Album;
 import photo.Model.User;
 
-public class UserController {
+public class UserController implements Serializable {
+    
 
     public static User user;
 

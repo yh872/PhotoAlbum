@@ -1,69 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Pagination?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="680.0" prefWidth="1019.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photo.Controller.AlbumController">
     <children>
       <VBox layoutX="758.0" layoutY="131.0" prefHeight="200.0" prefWidth="229.0">
          <children>
-            <Button fx:id = "caption" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Edit/Add Caption" onAction = "#setCaption">
+            <Button fx:id="caption" mnemonicParsing="false" onAction="#setCaption" prefHeight="48.0" prefWidth="226.0" text="Edit/Add Caption">
                <font>
                   <Font size="26.0" />
                </font>
             </Button>
-            <Button fx:id = "addTagButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Add Tag" onAction = "#addTag">
+            <Button fx:id="addTagButton" mnemonicParsing="false" onAction="#addTag" prefHeight="48.0" prefWidth="226.0" text="Add Tag">
                <font>
                   <Font size="26.0" />
                </font>
             </Button>
-            <Button fx:id = "deleteTagButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Delete Tag" onAction = "#deleteTag">
+            <Button fx:id="deleteTagButton" mnemonicParsing="false" onAction="#deleteTag" prefHeight="48.0" prefWidth="226.0" text="Delete Tag">
                <font>
                   <Font size="26.0" />
                </font>
             </Button>
          </children>
       </VBox>
-        <Pagination fx:id = "pagination" layoutX="7.0" layoutY="140.0" prefHeight="531.0" prefWidth="625.0" />
-      <Label fx:id = "Album_name" layoutX="658.0" layoutY="55.0" prefHeight="47.0" prefWidth="248.0" text="Your Album">
+      <Label fx:id="Album_name" layoutX="658.0" layoutY="55.0" prefHeight="47.0" prefWidth="248.0" text="Your Album">
          <font>
             <Font name="Arial Bold" size="36.0" />
          </font>
       </Label>
-      <Button fx:id = "goBackButton" layoutX="848.0" layoutY="579.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="138.0" text="go back" onAction = "#goBack">
+      <Button fx:id="goBackButton" layoutX="848.0" layoutY="579.0" mnemonicParsing="false" onAction="#goBack" prefHeight="48.0" prefWidth="138.0" text="go back">
          <font>
             <Font size="26.0" />
          </font>
       </Button>
 
-      <Button fx:id = "slideshow" layoutX="766.0" layoutY="349.0" mnemonicParsing="false" prefHeight="57.0" prefWidth="187.0" text="Slideshow" onAction = "#executeSlideshow">
+      <Button fx:id="slideshow" layoutX="766.0" layoutY="349.0" mnemonicParsing="false" onAction="#executeSlideshow" prefHeight="57.0" prefWidth="187.0" text="Slideshow">
          <font>
             <Font size="26.0" />
          </font>
       </Button>
-      <Button fx:id = "displayButton" layoutX="539.0" layoutY="349.0" mnemonicParsing="false" prefHeight="57.0" prefWidth="187.0" text="Display Photo" onAction = "#displayPhoto">
+      <Button fx:id="displayButton" layoutX="539.0" layoutY="349.0" mnemonicParsing="false" onAction="#displayPhoto" prefHeight="57.0" prefWidth="187.0" text="Display Photo">
          <font>
             <Font size="26.0" />
          </font>
       </Button>
       <VBox layoutX="538.0" layoutY="132.0" prefHeight="11.0" prefWidth="185.0">
          <children>
-            <Button fx:id = "addPhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Add Photo" onAction = "#addPhoto">
+            <Button fx:id="addPhotoButton" mnemonicParsing="false" onAction="#addPhoto" prefHeight="48.0" prefWidth="226.0" text="Add Photo">
                <font>
                   <Font size="26.0" />
                </font>
             </Button>
-            <Button fx:id = "deletePhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="224.0" text="Delete Photo" onAction = "#deletePhoto">
+            <Button fx:id="deletePhotoButton" mnemonicParsing="false" onAction="#deletePhoto" prefHeight="48.0" prefWidth="224.0" text="Delete Photo">
                <font>
                   <Font size="26.0" />
                </font>
             </Button>
-            <Button fx:id = "copyPhotoButton" mnemonicParsing="false" prefHeight="48.0" prefWidth="226.0" text="Copy Photo" onAction = "#copyPhoto">
+            <Button fx:id="copyPhotoButton" mnemonicParsing="false" onAction="#copyPhoto" prefHeight="48.0" prefWidth="226.0" text="Copy Photo">
                <font>
                   <Font size="26.0" />
                </font>
@@ -72,13 +72,21 @@
       </VBox>
       <Pane layoutX="11.0" layoutY="37.0" prefHeight="574.0" prefWidth="502.0">
          <children>
-            <ImageView fx:id = "img1" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id = "img2" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id = "img3" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id = "img4" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id = "img5" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id = "img6" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img1" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="0.0" onMouseClicked="#img1clicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img2" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="0.0" onMouseClicked="#img2clicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img3" fitHeight="124.0" fitWidth="161.0" layoutX="0.0" layoutY="204.0" onMouseClicked="#img3clicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img4" fitHeight="124.0" fitWidth="161.0" layoutX="325.0" layoutY="204.0" onMouseClicked="#img4clicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img5" fitHeight="124.0" fitWidth="161.0" layoutX="8.0" layoutY="408.0" onMouseClicked="#img5clicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="img6" fitHeight="124.0" fitWidth="161.0" layoutX="323.0" layoutY="408.0" onMouseClicked="#img6clicked" pickOnBounds="true" preserveRatio="true" />
+            <Text fx:id="caption1" layoutX="8.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
+            <Text fx:id="caption2" layoutX="329.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
+            <Text fx:id="caption3" layoutX="8.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
+            <Text fx:id="caption4" layoutX="329.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
+            <Text fx:id="caption5" layoutX="8.0" layoutY="546.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
+            <Text fx:id="caption6" layoutX="329.0" layoutY="546.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="150.0" />
          </children>
       </Pane>
+      <ChoiceBox fx:id="pageSelector" layoutX="583.0" layoutY="470.0" onAction="#changePage" prefWidth="150.0" />
+      <Label fx:id="pageNumberlabel" layoutX="583.0" layoutY="446.0" prefHeight="17.0" prefWidth="119.0" text="Page Number:" />
     </children>
 </Pane>

@@ -7,11 +7,11 @@ public class Photo implements Serializable{
     public ArrayList<Album> listofAlbums;
     public ArrayList<Tag> listofTags;
     public Calendar date;
-   public  String caption;
-    public Photo(Calendar date, String caption){
-        this.date = date;
-        date.set(Calendar.MILLISECOND, 0);
-        this.caption = caption;
+    public String path;
+   public  String caption = "";
+    public Photo(String path){
+        this.path = path;
+        listofTags = new ArrayList<>();
     }
     public void editCaption(String s){
         caption = s;
