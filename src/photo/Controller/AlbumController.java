@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javafx.collections.FXCollections;
@@ -17,7 +18,9 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
@@ -29,6 +32,7 @@ import javafx.stage.Stage;
 import photo.Model.Admin;
 import photo.Model.Album;
 import photo.Model.Photo;
+import photo.Model.Tag;
 
 public class AlbumController{
     public static boolean isStock = false;
@@ -38,6 +42,8 @@ public class AlbumController{
     public static boolean deleteTagClicked = false;
     public static boolean deletePhotoClicked = false;
     public static boolean copyPhotoClicked = false;
+    public static boolean movePhotoClicked = false;
+    public static boolean displayPhotoClicked = false;
     @FXML
     private Button caption;
 
@@ -90,6 +96,9 @@ public class AlbumController{
     @FXML
     private Button copyPhotoButton;
 
+    @FXML
+    private Button movePhotoButton;
+
     @FXML private Text caption1; @FXML private Text caption2; @FXML private Text caption3;
     @FXML private Text caption4; @FXML private Text caption5; @FXML private Text caption6;
 
@@ -102,6 +111,8 @@ public class AlbumController{
          deleteTagClicked = false;
         deletePhotoClicked = false;
       copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
         ObservableList<Integer> items = FXCollections.observableArrayList();
         items.addAll(1,2,3,4,5,6,7,8,9,10);
         pageSelector.setItems(items);
@@ -221,6 +232,8 @@ public class AlbumController{
          deleteTagClicked = false;
         deletePhotoClicked = false;
       copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
     }
 
     @FXML
@@ -230,6 +243,8 @@ public class AlbumController{
          deleteTagClicked = false;
         deletePhotoClicked = false;
       copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Add Tag");
       alert.setHeaderText(null);
@@ -244,6 +259,8 @@ public class AlbumController{
          deleteTagClicked = true;
         deletePhotoClicked = false;
       copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Delete Tag");
       alert.setHeaderText(null);
@@ -308,24 +325,21 @@ public class AlbumController{
             calendar.setTimeInMillis(selectedFile.lastModified());
             // Set milliseconds to zero
             calendar.set(Calendar.MILLISECOND, 0);
-/* 
-            ImageView[] imageViews = {img1, img2, img3, img4, img5, img6};
-            for (ImageView imageView : imageViews) {
-                if (imageView.getImage() == null) {
-                    // Set the image to the empty ImageView
-                    try (InputStream inputStream = new FileInputStream(selectedFile)) {
-                        Image image = new Image(inputStream);
-                        imageView.setImage(image);
-                        break; // Exit the loop after setting the image
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    }
-                }
-            }
-    */
+
             // Add the photo to the album
             Photo p = new Photo(selectedFile.getAbsolutePath());
             p.date = calendar;
+            for (Photo p1: currentAlbum.getAllPhotos()){
+                if (p1.path.equals(p.path)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("This Photo is already in the album.");
+                    alert.showAndWait();
+                    return;
+
+                }
+            }
             currentAlbum.addPhoto(p);
 
             try {
@@ -344,6 +358,8 @@ public class AlbumController{
          deleteTagClicked = false;
         deletePhotoClicked = true;
       copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Delete Photo");
       alert.setHeaderText(null);
@@ -353,11 +369,22 @@ public class AlbumController{
 
     @FXML
     private void copyPhoto() {
+        if (UserController.user.getAlbums().size() <2){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No other album found.");
+            alert.showAndWait();
+            return;
+        }
         captionClicked = false;
         addTagClicked = false;
          deleteTagClicked = false;
         deletePhotoClicked = false;
       copyPhotoClicked = true;
+      movePhotoClicked = false;
+      displayPhotoClicked = false;
+      
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Copy photo");
       alert.setHeaderText(null);
@@ -366,14 +393,63 @@ public class AlbumController{
     }
 
     @FXML
+    private void movePhoto() {
+        captionClicked = false;
+        addTagClicked = false;
+         deleteTagClicked = false;
+        deletePhotoClicked = false;
+      copyPhotoClicked = false;
+      movePhotoClicked = true;
+      displayPhotoClicked = false;
+      Alert alert = new Alert(AlertType.INFORMATION);
+      alert.setTitle("Move photo");
+      alert.setHeaderText(null);
+      alert.setContentText("Please click on the image you would like to move to another album.");
+      alert.showAndWait();
+
+    }
+
+    @FXML
 
     private void executeSlideshow(){
+        try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/Slideshow.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Slideshow");
+            stage.show();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
 
     }
     @FXML
 
     private void displayPhoto(){
-
+        if (currentAlbum.getAllPhotos().isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No Photos in this album.");
+            alert.showAndWait();
+            return;
+        }
+        captionClicked = false;
+        addTagClicked = false;
+         deleteTagClicked = false;
+        deletePhotoClicked = false;
+      copyPhotoClicked = false;
+      movePhotoClicked = false;
+      displayPhotoClicked = true;
+      Alert alert = new Alert(AlertType.INFORMATION);
+      alert.setTitle("Display photo");
+      alert.setHeaderText(null);
+      alert.setContentText("Please click on the image you would like to display.");
+      alert.showAndWait();
     }
 
     @FXML
@@ -568,7 +644,7 @@ public class AlbumController{
         if (captionClicked) {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setTitle("Add Caption");
-            dialog.setHeaderText("Enter the caption for Image 1:");
+            dialog.setHeaderText("Enter the caption for this image: ");
             dialog.setContentText("Caption:");
     
             dialog.showAndWait().ifPresent(caption -> {
@@ -589,26 +665,2268 @@ public class AlbumController{
                 captionClicked = false;
             });
         }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+                if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+                if (curPage ==9) index =48; if (curPage ==10) index =54;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                            if (curPage ==1) i =0; if (curPage ==2) i =6; if (curPage ==3) i =12; if (curPage ==4) i =18;
+                            if (curPage ==5) i =24; if (curPage ==6) i =30; if (curPage ==7) i =36; if (curPage ==8) i =42;
+                            if (curPage ==9) i =48; if (curPage ==10) i =54;
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                if (curPage ==1) i =0; if (curPage ==2) i =6; if (curPage ==3) i =12; if (curPage ==4) i =18;
+                if (curPage ==5) i =24; if (curPage ==6) i =30; if (curPage ==7) i =36; if (curPage ==8) i =42;
+                if (curPage ==9) i =48; if (curPage ==10) i =54;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+                if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+                if (curPage ==9) index =48; if (curPage ==10) index =54;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
+        
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+                    if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+                    if (curPage ==9) index =48; if (curPage ==10) index =54;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+                    if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+                    if (curPage ==9) index =48; if (curPage ==10) index =54;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+                    if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+                    if (curPage ==9) index =48; if (curPage ==10) index =54;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+            if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+            if (curPage ==9) index =48; if (curPage ==10) index =54;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
        
     }
     @FXML
     public void img2clicked(){
+        if (img2.getImage().equals(null)){
+            return;
+         }
+        if (captionClicked) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Caption");
+            dialog.setHeaderText("Enter the caption for this image: ");
+            dialog.setContentText("Caption:");
+    
+            dialog.showAndWait().ifPresent(caption -> {
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+                if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+                if (curPage ==9) index =49; if (curPage ==10) index =55;
+
+                currentAlbum.getAllPhotos().get(index).editCaption(caption);
+                try {
+                    Admin.WritetoFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                changePage();
+                captionClicked = false;
+            });
+        }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+            if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+            if (curPage ==9) index =49; if (curPage ==10) index =55;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                            if (curPage ==1) i =1; if (curPage ==2) i =7; if (curPage ==3) i =13; if (curPage ==4) i =19;
+                            if (curPage ==5) i =25; if (curPage ==6) i =31; if (curPage ==7) i =37; if (curPage ==8) i =43;
+                            if (curPage ==9) i =49; if (curPage ==10) i =55;
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                        if (curPage ==1) i =1; if (curPage ==2) i =7; if (curPage ==3) i =13; if (curPage ==4) i =19;
+                        if (curPage ==5) i =25; if (curPage ==6) i =31; if (curPage ==7) i =37; if (curPage ==8) i =43;
+                        if (curPage ==9) i =49; if (curPage ==10) i =55;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+                if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+                if (curPage ==9) index =49; if (curPage ==10) index =55;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
+        
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+                    if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+                    if (curPage ==9) index =49; if (curPage ==10) index =55;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+                if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+                if (curPage ==9) index =49; if (curPage ==10) index =55;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+                if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+                if (curPage ==9) index =49; if (curPage ==10) index =55;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+            if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+            if (curPage ==9) index =49; if (curPage ==10) index =55;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
         
     }
     @FXML
     public void img3clicked(){
+        if (img3.getImage().equals(null)){
+            return;
+         }
+        if (captionClicked) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Caption");
+            dialog.setHeaderText("Enter the caption for this image: ");
+            dialog.setContentText("Caption:");
+    
+            dialog.showAndWait().ifPresent(caption -> {
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+                if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+                if (curPage ==9) index =50; if (curPage ==10) index =56;
+
+                currentAlbum.getAllPhotos().get(index).editCaption(caption);
+                try {
+                    Admin.WritetoFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                changePage();
+                captionClicked = false;
+            });
+        }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+            if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+            if (curPage ==9) index =50; if (curPage ==10) index =56;
+
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                if (curPage ==1) i =2; if (curPage ==2) i =8; if (curPage ==3) i =14; if (curPage ==4) i =20;
+                if (curPage ==5) i =26; if (curPage ==6) i =32; if (curPage ==7) i =38; if (curPage ==8) i =44;
+                if (curPage ==9) i =50; if (curPage ==10) i =56;
+
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                        if (curPage ==1) i =2; if (curPage ==2) i =8; if (curPage ==3) i =14; if (curPage ==4) i =20;
+                        if (curPage ==5) i =26; if (curPage ==6) i =32; if (curPage ==7) i =38; if (curPage ==8) i =44;
+                        if (curPage ==9) i =50; if (curPage ==10) i =56;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                        int index = 0;
+                        if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+                        if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+                        if (curPage ==9) index =50; if (curPage ==10) index =56;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
+        
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+            if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+            if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+            if (curPage ==9) index =50; if (curPage ==10) index =56;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+                if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+                if (curPage ==9) index =50; if (curPage ==10) index =56;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+                if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+                if (curPage ==9) index =50; if (curPage ==10) index =56;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+            if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+            if (curPage ==9) index =50; if (curPage ==10) index =56;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
         
     }
     @FXML
     public void img4clicked(){
+        if (img4.getImage().equals(null)){
+            return;
+         }
+        if (captionClicked) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Caption");
+            dialog.setHeaderText("Enter the caption for this image: ");
+            dialog.setContentText("Caption:");
+    
+            dialog.showAndWait().ifPresent(caption -> {
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+                if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+                if (curPage ==9) index =51; if (curPage ==10) index =57;
+
+                currentAlbum.getAllPhotos().get(index).editCaption(caption);
+                try {
+                    Admin.WritetoFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                changePage();
+                captionClicked = false;
+            });
+        }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+            if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+            if (curPage ==9) index =51; if (curPage ==10) index =57;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                if (curPage ==1) i =3; if (curPage ==2) i =9; if (curPage ==3) i =15; if (curPage ==4) i =21;
+                if (curPage ==5) i =27; if (curPage ==6) i =33; if (curPage ==7) i =39; if (curPage ==8) i =45;
+                if (curPage ==9) i =51; if (curPage ==10) i =57;
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                if (curPage ==1) i =3; if (curPage ==2) i =9; if (curPage ==3) i =15; if (curPage ==4) i =21;
+                if (curPage ==5) i =27; if (curPage ==6) i =33; if (curPage ==7) i =39; if (curPage ==8) i =45;
+                if (curPage ==9) i =51; if (curPage ==10) i =57;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+                if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+                if (curPage ==9) index =51; if (curPage ==10) index =57;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
+        
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+                    if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+                    if (curPage ==9) index =51; if (curPage ==10) index =57;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+                if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+                if (curPage ==9) index =51; if (curPage ==10) index =57;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+                if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+                if (curPage ==9) index =51; if (curPage ==10) index =57;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+            if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+            if (curPage ==9) index =51; if (curPage ==10) index =57;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
         
     }
     @FXML
     public void img5clicked(){
+        if (img5.getImage().equals(null)){
+            return;
+         }
+        if (captionClicked) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Caption");
+            dialog.setHeaderText("Enter the caption for this image: ");
+            dialog.setContentText("Caption:");
+    
+            dialog.showAndWait().ifPresent(caption -> {
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                if (curPage ==9) index =52; if (curPage ==10) index =58;
+
+                currentAlbum.getAllPhotos().get(index).editCaption(caption);
+                try {
+                    Admin.WritetoFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                changePage();
+                captionClicked = false;
+            });
+        }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                if (curPage ==9) index =52; if (curPage ==10) index =58;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                                    if (curPage ==1) i =4; if (curPage ==2) i =10; if (curPage ==3) i =16; if (curPage ==4) i =22;
+                                    if (curPage ==5) i =28; if (curPage ==6) i =34; if (curPage ==7) i =40; if (curPage ==8) i =46;
+                                    if (curPage ==9) i =52; if (curPage ==10) i =58;
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                        if (curPage ==1) i =4; if (curPage ==2) i =10; if (curPage ==3) i =16; if (curPage ==4) i =22;
+                        if (curPage ==5) i =28; if (curPage ==6) i =34; if (curPage ==7) i =40; if (curPage ==8) i =46;
+                        if (curPage ==9) i =52; if (curPage ==10) i =58;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                if (curPage ==9) index =52; if (curPage ==10) index =58;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
+        
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                    if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                    if (curPage ==9) index =52; if (curPage ==10) index =58;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                    if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                    if (curPage ==9) index =52; if (curPage ==10) index =58;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+                    if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+                    if (curPage ==9) index =52; if (curPage ==10) index =58;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+            if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+            if (curPage ==9) index =52; if (curPage ==10) index =58;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
         
     }
     @FXML
     public void img6clicked(){
+        if (img6.getImage().equals(null)){
+            return;
+         }
+        if (captionClicked) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Caption");
+            dialog.setHeaderText("Enter the caption for this image: ");
+            dialog.setContentText("Caption:");
+    
+            dialog.showAndWait().ifPresent(caption -> {
+                Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                if (curPage ==9) index =53; if (curPage ==10) index =59;
+
+                currentAlbum.getAllPhotos().get(index).editCaption(caption);
+                try {
+                    Admin.WritetoFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                changePage();
+                captionClicked = false;
+            });
+        }
+        else if (addTagClicked){
+            ArrayList<String> choices = new ArrayList<>();
+    
+            choices.add("name");
+            choices.add("location");
+            Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                if (curPage ==9) index =53; if (curPage ==10) index =59;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
+                    choices.add(Tag.getTagName(temp.getTag()));
+                }
+                choices.add("new");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
+                dialog.setTitle("Add Tag");
+                dialog.setHeaderText("Choose a tag type or select 'new' to add a new tag type");
+                dialog.setContentText("Type:");
+                dialog.showAndWait().ifPresent(type ->{
+                    if (type.equals("new")){
+
+                        TextInputDialog d = new TextInputDialog();
+                        d.setTitle("Add Tag");
+                        d.setHeaderText("Enter a new type");
+                        d.setContentText("Tag Type:");
+                        d.showAndWait().ifPresent(n ->{
+
+                            if (!choices.contains(n)){
+                                choices.add(n);
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Success");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type has been added.");
+                                successAlert.showAndWait();
+                                TextInputDialog dial = new TextInputDialog();
+                                dial.setTitle("Add Tag");
+                                dial.setHeaderText("Enter a Value");
+                                dial.setContentText("Tag Value:");
+                                dial.showAndWait().ifPresent(v ->{
+                                    Tag tag1 = new Tag(n, v);
+                                    int i = 0;
+                                    if (curPage ==1) i =5; if (curPage ==2) i =11; if (curPage ==3) i =17; if (curPage ==4) i =23;
+                                    if (curPage ==5) i =29; if (curPage ==6) i =35; if (curPage ==7) i =41; if (curPage ==8) i =47;
+                                    if (curPage ==9) i =53; if (curPage ==10) i =59;
+                            currentAlbum.getAllPhotos().get(i).listofTags.add(tag1);
+                            Alert sAl = new Alert(Alert.AlertType.INFORMATION);
+                            sAl.setTitle("Success");
+                            sAl.setHeaderText(null);
+                            sAl.setContentText("Tag has been successfully added.");
+                            sAl.showAndWait();
+                            addTagClicked = false;
+                            try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                                });
+
+
+                            }
+                            else{
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("Tag Type already in list");
+                                successAlert.showAndWait();
+                                return;
+                            }
+                           
+
+                        });
+
+                    }
+                    else{
+                    TextInputDialog d = new TextInputDialog();
+                    d.setTitle("Add Tag");
+                    d.setHeaderText("Enter a Value");
+                    d.setContentText("Tag Value:");
+                    d.showAndWait().ifPresent(value ->{
+                        
+                        Tag temptag = new Tag(type, value);
+                        int i = 0;
+                        if (curPage ==1) i =5; if (curPage ==2) i =11; if (curPage ==3) i =17; if (curPage ==4) i =23;
+                        if (curPage ==5) i =29; if (curPage ==6) i =35; if (curPage ==7) i =41; if (curPage ==8) i =47;
+                        if (curPage ==9) i =53; if (curPage ==10) i =59;
+                        for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                            if (temptag.getTag().equals(temp.getTag())){
+                                Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Duplicate Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tag Already exists for this image.");
+                    alert.showAndWait();
+                    return;
+                            }
+                    }
+
+                    for (Tag temp : currentAlbum.getAllPhotos().get(i).listofTags ){
+                        if (Tag.getTagName(temp.getTag()).equals("location")){ 
+                            currentAlbum.getAllPhotos().get(i).listofTags.remove(temp);
+                            break;
+                        };
+                    }
+                    currentAlbum.getAllPhotos().get(i).listofTags.add(temptag);
+                  
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Tag has been successfully added.");
+                    successAlert.showAndWait();
+                    addTagClicked = false;
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    });
+                }
+                    
+                });
+        }
+
+        else if (deleteTagClicked){
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
+            dialog.setContentText("Tag:");
+            dialog.showAndWait().ifPresent(tag -> {
+                if (!Tag.isValidTag(tag)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Invalid Tag");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
+                    alert.showAndWait();
+                    return;
+                        }
+                        Integer curPage = pageSelector.getValue(); 
+                int index = 0;
+                if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                if (curPage ==9) index =53; if (curPage ==10) index =59;
+                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    if (tag.equals(temp.getTag())){
+                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Success");
+                    alert.setHeaderText(null);
+                     alert.setContentText("Tag has succesfully been removed");
+                     alert.showAndWait();
+                     try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deleteTagClicked = false;
+                    return;
+                    }
+                }
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tag Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No such Tag present for this image.");
+                alert.showAndWait();
+            });
+            
+        }
+        else if (deletePhotoClicked){
+            
         
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Confirmation");
+            confirmationAlert.setHeaderText("Delete Photo");
+            confirmationAlert.setContentText("Are you sure you want to delete this photo?");
+            confirmationAlert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {  
+                    Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                    if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                    if (curPage ==9) index =53; if (curPage ==10) index =59;
+                    currentAlbum.getAllPhotos().remove(index);
+                    changePage();
+                    try {
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    deletePhotoClicked = false;
+                } else {
+                    deletePhotoClicked = false;
+                    return;
+                }
+            });
+        }
+
+        else if (copyPhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Copy Photo");
+            dialog.setHeaderText("Choose an Album to copy this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+          
+                
+
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                    if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                    if (curPage ==9) index =53; if (curPage ==10) index =59;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been copied to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               copyPhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    copyPhotoClicked = false;
+
+
+            });
+           
+        }
+        else if (movePhotoClicked){
+            ArrayList<String> choices = new ArrayList<>();
+            for (Album a : UserController.user.getAlbums()){
+                if (a.albumName != currentAlbum.albumName)   choices.add(a.albumName);
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Move Photo");
+            dialog.setHeaderText("Choose an Album to move this photo to.");
+            dialog.setContentText("Album: ");
+            dialog.showAndWait().ifPresent(name ->{
+                Integer curPage = pageSelector.getValue(); 
+                    int index = 0;
+                    if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+                if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+                if (curPage ==9) index =53; if (curPage ==10) index =59;
+                    for (Album a: UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            for ( Photo p: a.getAllPhotos() ){
+                                if (p.path.equals(currentAlbum.getAllPhotos().get(index).path)){
+
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                      alert.setTitle("Error");
+                                      alert.setHeaderText(null);
+                                          alert.setContentText("Photo is already present in that album.");
+                                         alert.showAndWait();
+                                         return;
+                                }
+                            }
+                        }
+                    }
+                    for (Album a : UserController.user.getAlbums()){
+                        if (a.albumName.equals(name)){
+                            a.getAllPhotos().add(currentAlbum.getAllPhotos().get(index));
+                            currentAlbum.getAllPhotos().remove(index);
+
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                              alert.setHeaderText(null);
+                               alert.setContentText("Photo has succesfully been moved to " + a.albumName + ".") ;
+                               alert.showAndWait();
+                               movePhotoClicked = false;
+                               try {
+                                Admin.WritetoFile();
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            changePage();
+                            return;
+
+                        }
+                    }
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Album not found");
+                    alert.setHeaderText(null);
+                    alert.setContentText("no album with this name found.");
+                    alert.showAndWait();
+                    movePhotoClicked = false;
+
+
+            });
+
+        }
+        else if (displayPhotoClicked){
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+            if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+            if (curPage ==9) index =53; if (curPage ==10) index =59;
+            Photo tempPhoto = currentAlbum.getAllPhotos().get(index);
+            PhotoController.DisplayPhoto = tempPhoto;
+            try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/PhotoView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Photo View");
+            stage.show();
+            displayPhotoClicked = false;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
     }
 }
