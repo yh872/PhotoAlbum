@@ -1,3 +1,12 @@
+/**
+ * Controller class for the user view which displays all of the users albums.
+ * This class enables searching by date and tag, adding albums, deleting albums,
+ * renaming albums, and viewing a list of current albums 
+ * 
+ * @author Youssef Hanna
+ * 
+ */
+
 package photo.Controller;
 
 import java.io.IOException;
@@ -38,10 +47,18 @@ public class UserController implements Serializable {
 
     public static ArrayList<Album> userAlbums = new ArrayList<>();
 
+    /**
+     * 
+     * public method that allows the log in class to pass the users username to this class
+     * @param username string representing the user's username
+     */
     public static void setUser(String username){
             user = Admin.getUser(username);
             userAlbums = user.getAlbums();
     }
+    /**
+     * Helper method to display the albumview fxml file when user opens an album
+     */
     public void openAlbumView() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
@@ -55,6 +72,12 @@ public class UserController implements Serializable {
             e.printStackTrace();
         }
     }
+    /**
+     * 
+     * This helper method turns all important album data into a String to be displayed in a listview
+     * @param album an album in the users list of albums
+     * @return returns a string which contains the album name, number of photos in the album, and date ranges of the photos
+     */
     private String combineAlbumData(Album album) {
         String albumName = album.albumName;
         Integer numPhotos = album.numberOfPhotos();
@@ -92,6 +115,11 @@ public class UserController implements Serializable {
     @FXML  DatePicker to;
 
     @FXML ChoiceBox<String> TagSearchBox;
+    /**
+     * 
+     * populates the list view with important information about each of the users albums,
+     * including the name, date ranges, and number of photos
+     */
     @FXML
     public void initialize(){
         if (user.getUsername().equals("stock")){
@@ -114,7 +142,11 @@ public class UserController implements Serializable {
         albumListView.setItems(albumDataList);
     }
 
-    
+    /**
+     * updates the prompt text when the tag search type is changed so the user knows the expected
+     * format of the string representing his search
+     * @param e the event of the user changing the type of tag search
+     */
     @FXML
     public void handleChange(ActionEvent e) {
         String selectedOption = TagSearchBox.getValue();
@@ -150,6 +182,12 @@ public class UserController implements Serializable {
         return true;
 
     }
+    /**
+     * 
+     * searches all of the users albums for the inputted tag and creates a temporary album to be 
+     * displayed. the user can then choose to create an album of the search results
+     * @param e the event of the search tag button being clicked
+     */
     @FXML
     public void searchTag(ActionEvent e){
 
@@ -331,7 +369,13 @@ public class UserController implements Serializable {
     }   
 
     
-
+    /**
+     * 
+     *  searches all of the users albums for photos within the specificed date range and creates a temporary album to be displayed. 
+     * the user can then choose to create an album of the search results
+     * 
+     * @param e the event of the search date button being clicked
+     */
     @FXML
     public void searchDate(ActionEvent e){
         if (from.getValue() == null || to.getValue() == null){
@@ -418,6 +462,10 @@ public class UserController implements Serializable {
 
         }
     }
+    /**
+     * logs the user out and changes the user view back to the log in page
+     * @param event the event of the logout button being clicked
+     */
     @FXML
     public void logout(ActionEvent event){
         try {
@@ -433,7 +481,11 @@ public class UserController implements Serializable {
             e.printStackTrace();
         }
     }
-
+    /**
+     * 
+     * deletes an album from the users listofalbums arraylist
+     * @param e the event of the delete album button being pressed
+     */
     @FXML
     public void deleteAlbum(ActionEvent e){
          TextInputDialog dialog = new TextInputDialog();
@@ -474,7 +526,6 @@ public class UserController implements Serializable {
             alert.setContentText("Album \"" + albumNameToDelete + "\" has been deleted.");
             alert.showAndWait();
         } else {
-            // Show an error message if the album doesn't exist
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
@@ -483,7 +534,12 @@ public class UserController implements Serializable {
         }
     }
     }
-
+    /**
+     * 
+     * changes the stage to the albumview fxml file, displaying all ofthe photos and their captions in the album 
+     * and allowing users to make changes to their album
+     * @param event the event that the open album button has been clicked
+     */
     @FXML
     public void openAlbum(ActionEvent event) {
         AlbumController.isSearch = false;
@@ -515,7 +571,13 @@ public class UserController implements Serializable {
             }
         });
     }
-
+    /**
+     * 
+     * starts a dialog with the user to get the album they would like to rename and
+     * lets user set a new name for the chosen album
+     *
+     * @param e the event that the create album button has been clicked
+     */
     @FXML
     public void renameAlbum(ActionEvent e){
         TextInputDialog dialog = new TextInputDialog();
@@ -535,7 +597,6 @@ public class UserController implements Serializable {
             }
     
             if (albumToRename != null) {
-                // Show dialog to get new album name
                 TextInputDialog newAlbumNameDialog = new TextInputDialog();
                 newAlbumNameDialog.setTitle("Rename Album");
                 newAlbumNameDialog.setHeaderText("Enter the new name for the album:");
@@ -574,7 +635,12 @@ public class UserController implements Serializable {
             }
         }
     }
-
+    /**
+     * adds a new album to the users list of albums,
+     * starts a dialog with the user to get the album name then displays the new album
+     * in the listview of albums
+     * @param e the event that the create album button has been clicked
+     */
     @FXML
     public void createAlbum(ActionEvent e){
         TextInputDialog dialog = new TextInputDialog();

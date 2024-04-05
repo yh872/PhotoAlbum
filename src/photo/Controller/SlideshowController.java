@@ -1,3 +1,11 @@
+/**
+ * 
+ * This class is a controller for slideshow.fxml, the manual slideshow of all the images in an album
+ * 
+ * @author Youssef Hanna
+ */
+
+
 package photo.Controller;
 
 import java.io.FileInputStream;
@@ -26,7 +34,11 @@ public class SlideshowController {
     @FXML
     private Button nextButton;
 
-
+    /**
+     * 
+     * sets the first image of the slideshow and disables the back button
+     * @throws FileNotFoundException
+     */
     @FXML
     private void initialize() throws FileNotFoundException {
         curIndex = 0;
@@ -42,6 +54,12 @@ public class SlideshowController {
     
     }
 
+ 
+    /**
+     * handles user pressing the back button, sets the image as the previous image, and can potentially
+     * enable the go next button
+     * @throws FileNotFoundException
+     */
     @FXML
     private void goBack() throws FileNotFoundException{
         curIndex--;
@@ -60,6 +78,11 @@ public class SlideshowController {
 
 
     }
+    /**
+     *  handles user pressing the next button, sets the image as the next image, and can potentially
+     * enable the go back button
+     * @throws FileNotFoundException
+     */
     @FXML
     private void goNext() throws FileNotFoundException{
         curIndex++; 
@@ -77,6 +100,10 @@ public class SlideshowController {
 
         
     }
+    /**
+     * kills the slideshow window and brings user back to the album screen
+     * @param event event of the endslideshow button being clicked
+     */
     @FXML
     private void endSlideshow(ActionEvent event){
         try{

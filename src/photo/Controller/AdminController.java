@@ -1,3 +1,10 @@
+/**
+ * 
+ * Controller class for the admin user 
+ * 
+ * @author Youssef Hanna
+ */
+
 package photo.Controller;
 
 import java.io.IOException;
@@ -15,6 +22,11 @@ import photo.Model.User;
 
 public class AdminController{
 
+
+    /**
+     * sends the user back to the log in screen
+     * @param event event of the logout button being clicked
+     */
     @FXML
     public void logout(ActionEvent event) {
         try {
@@ -31,7 +43,10 @@ public class AdminController{
         }
 
     }
-
+    /**
+     * loads the fxml file that displays a list of all the applications users
+     * @param event event of the display user list button being clicked
+     */
     @FXML
     public void DisplayUserList(ActionEvent event) {
         try {
@@ -47,10 +62,13 @@ public class AdminController{
             e.printStackTrace();
         }
     }
-
+    /**
+     * 
+     * starts a dialog that allows the admin to delete a user
+     * @param event event of the delete user button being clicked
+     */
     @FXML
     public void getDeletedUsername(ActionEvent event) {
-        // Create a text input dialog
         TextField userInput = new TextField();
         userInput.setPromptText("Enter username to delete");
 
@@ -58,8 +76,6 @@ public class AdminController{
         alert.setTitle("Delete User");
         alert.setHeaderText("Enter Username");
         alert.getDialogPane().setContent(userInput);
-
-        // Wait for user input
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 String username = userInput.getText();
@@ -87,10 +103,13 @@ public class AdminController{
             }
         });
     }
-
+    /**
+     * 
+     * starts a dialog that allows the admin to add a new user
+     * @param event event of the add user button being clicked
+     */
     @FXML
     public void AddNewUser(ActionEvent event) {
-        // Create a text input dialog
         TextField userInput = new TextField();
         userInput.setPromptText("Enter new username");
     
@@ -98,8 +117,6 @@ public class AdminController{
         alert.setTitle("Create New User");
         alert.setHeaderText("Enter Username");
         alert.getDialogPane().setContent(userInput);
-    
-        // Wait for user input
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 String username = userInput.getText();

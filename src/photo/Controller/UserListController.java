@@ -1,3 +1,10 @@
+/**
+ * This class is the controller of the user list view of the admin. it supplies the UserList.fxml file with 
+ * user data to fill out the list 
+ * 
+ * @author Youssef Hanna
+ */
+
 package photo.Controller;
 
 import java.io.IOException;
@@ -18,7 +25,11 @@ import photo.Model.User;
 public class UserListController {
     @FXML
     private ListView<String> listOfUsers;
-
+    /**
+     * 
+     * adds the stock and admin user to the list by default, then calls populateList()
+     * set the items of the ListView of usernames
+     */
     @FXML
     public void initialize() {
         if (!Admin.containsUser("stock")){
@@ -29,7 +40,11 @@ public class UserListController {
         }
         populateList();
     }
-
+   
+    /**
+     * 
+     * gets username data from the admin class and populates the ListView of usernames
+     */
     private void populateList() {
         
         ArrayList<String> tempList = new ArrayList<>();
@@ -40,7 +55,12 @@ public class UserListController {
         ObservableList<String> observableList = FXCollections.observableArrayList(tempList);
         listOfUsers.setItems(observableList);
     }
-
+    /**
+     * 
+     * 
+     * @param event the event of the user clicking the back button
+     * sends user back to the admin view
+     */
     @FXML
     public void back(ActionEvent event) {
         try {

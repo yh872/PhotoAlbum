@@ -1,3 +1,15 @@
+/**
+ * This class represents the admin user
+ * It also stores the listofusers arraylist, which is where all of the data is stored
+ * 
+ * 
+ * 
+ * 
+ * 
+ * @author Youssef Hanna
+ */
+
+
 package photo.Model;
 
 import java.io.*;
@@ -8,6 +20,12 @@ public class Admin implements Serializable {
     public static final String storeDir = "src/photo/Model";
 public static final String storeFile = "user.dat";
 
+/**
+ * 
+ * @serialData Serializes the list of users and each users data
+ * 
+ * @throws IOException
+ */
 public static void WritetoFile() throws IOException{
     try {
         FileOutputStream FileStream = new FileOutputStream(storeDir + File.separator + storeFile);
@@ -19,7 +37,11 @@ public static void WritetoFile() throws IOException{
         i.printStackTrace();
     }
 }
-
+/**
+ * reads the serialized data object
+ * 
+ * @throws IOException
+ */
 public static void getData() throws IOException{
     try {
         FileInputStream FileStream = new FileInputStream(storeDir + File.separator + storeFile);
@@ -36,15 +58,24 @@ public static void getData() throws IOException{
     }
 }
 
-
+    /**
+     * The arraylist storing all of the users
+     */
     public static ArrayList<User> listofUsers = new ArrayList<>();
-    public Admin(){
-    }
-    
 
+   
+    
+    /**
+     * adds a user to the list of users
+     * @param username string representing the users name/id
+     */
     public static void AddUser(String username){
         listofUsers.add(new User(username));
     }
+    /**
+     * deletes a user from the list of users
+     * @param username string representing the users name/id
+     */
     public static void DeleteUser(String username){
         for (int i = 0; i < listofUsers.size(); i++){
             if (listofUsers.get(i).getUsername().equals(username)){
@@ -53,6 +84,11 @@ public static void getData() throws IOException{
             }
         }
     }
+    /**
+     * 
+     * @param username string representing the users name/id
+     * @return returns whether a username is in the list of users or not
+     */
     public static boolean containsUser(String username){
         for (int i = 0; i < listofUsers.size(); i++){
             if (listofUsers.get(i).getUsername().equals(username)){
@@ -61,6 +97,11 @@ public static void getData() throws IOException{
         }
         return false;
     }
+    /**
+     * 
+     * @param username string representing the users name/id
+     * @return returns a user object with the given username
+     */
     public static User getUser(String username){
         for (int i = 0; i < listofUsers.size(); i++){
             if (listofUsers.get(i).getUsername().equals(username)){

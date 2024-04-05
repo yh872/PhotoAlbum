@@ -1,3 +1,11 @@
+/**
+ * 
+ * 
+ * Controller class for the login window, which is the first window users see when launching the application
+ * 
+ * @author Youssef Hanna
+ */
+
 package photo.Controller;
 import java.io.IOException;
 
@@ -17,7 +25,12 @@ public class LoginController {
 
     @FXML
     private TextField usernameField;
-
+    /**
+     * handles the log in button being clicked by getting the inputted string from the 
+     * usernameField. if its admin or stock, the user will be directed to their unique views,
+     * otherwise the user will be directed to user view
+     * @param event
+     */
     @FXML
     public void loginButtonClicked(ActionEvent event) {
         String username = usernameField.getText();

@@ -1,3 +1,10 @@
+/**
+ * 
+ * this class displays a photo and information about it such as the image, date, tags, and caption
+ * 
+ * @author Youssef Hanna
+ */
+
 package photo.Controller;
 
 import java.io.FileInputStream;
@@ -34,7 +41,11 @@ public class PhotoController {
     @FXML
     private ListView<String> tags;
   
-
+    /**
+     * 
+     * sets the image, caption, tags, and date of the image chosen.
+     * @throws FileNotFoundException
+     */
     @FXML
     private void initialize() throws FileNotFoundException{
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
@@ -80,7 +91,10 @@ public class PhotoController {
        tags.setItems(items);
 
     }
-
+    /**
+     * kills the window and returns to the album view
+     * @param event event of the go back button being clicked
+     */
     @FXML
     private void goBack(ActionEvent event){
         try{

@@ -1,3 +1,11 @@
+/**
+ * 
+ * Controller class for the album view of the application. This class enables users to add photos, delete photos,
+ * add or delete tags to their photos, display their photos and go through a slideshow, and copy/move photos to other albums
+ * 
+ * @author Youssef Hanna
+ */
+
 package photo.Controller;
 
 import java.io.File;
@@ -109,6 +117,14 @@ public class AlbumController{
     
 
         @FXML
+        /**
+         * initializes the album view for the current album by adding the first 6 photos in the list of photos.
+         * this method also handles the special stock user and handles the search results which are unique album views
+         * with limited features
+         * 
+         * 
+         * @throws FileNotFoundException
+         */
     public void initialize() throws FileNotFoundException{
 
         captionClicked = false;
@@ -272,6 +288,15 @@ public class AlbumController{
         }
 
     }
+    /**
+     * 
+     * 
+     * @param event the event of the user clicking the create album button
+     * 
+     * This method turns a users search results into a new album, allowing them to name it then adding the album
+     * to their list of albums. The method/button is only available to the user through search results, otherwise 
+     * the button is set invisible and disabled
+     */
     @FXML
     private void createAlbum(ActionEvent event){
         TextInputDialog dialog = new TextInputDialog();
@@ -339,9 +364,22 @@ public class AlbumController{
         });
 
     }
-
+    /**
+     * 
+     * 
+     * sets off a flag that the caption button has been clicked 
+     * and informs the user to click on the photo they would like to add a caption to
+     */
     @FXML
     private void setCaption() {
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
+        }
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Add Caption");
         alert.setHeaderText(null);
@@ -355,9 +393,22 @@ public class AlbumController{
       movePhotoClicked = false;
       displayPhotoClicked = false;
     }
-
+    /**
+     * 
+     * sets off a flag that the add tag button has been clicked and informs the user 
+     * to click on the photo they would like to add a tag to
+     */
     @FXML
     private void addTag() {
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
+        }
+
         captionClicked = false;
         addTagClicked = true;
          deleteTagClicked = false;
@@ -371,9 +422,21 @@ public class AlbumController{
       alert.setContentText("Please click on an image to add a tag to the image");
       alert.showAndWait();
     }
-
+    /**
+     * 
+     * sets off a flag that the caption button has been clicked and informs 
+     * the user to click on the photo they would like to add a caption to
+     */
     @FXML
     private void deleteTag() {
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
+        }
         captionClicked = false;
         addTagClicked = false;
          deleteTagClicked = true;
@@ -390,6 +453,11 @@ public class AlbumController{
        
     }
 
+    /**
+     * 
+     * returns the user back to the user view where they can see their list of albums
+     * @param event the event of the user clicking the go back button
+     */
     @FXML
     private void goBack(ActionEvent event) {
         if (isStock){
@@ -430,7 +498,12 @@ public class AlbumController{
         }
        
     }
-
+    /**
+     * 
+     * Opens a file finder for the user and allows them to pick a valid image file to insert 
+     * into their album
+     * @param e event of user clicking the add photo button
+     */
     @FXML
     private void addPhoto(ActionEvent e) {
         FileChooser fileChooser = new FileChooser();
@@ -441,13 +514,10 @@ public class AlbumController{
         File selectedFile = fileChooser.showOpenDialog(((Node) e.getSource()).getScene().getWindow());
         
         if (selectedFile != null) {
-            // Iterate through the ImageView nodes to find the closest empty ImageView
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(selectedFile.lastModified());
-            // Set milliseconds to zero
             calendar.set(Calendar.MILLISECOND, 0);
 
-            // Add the photo to the album
             Photo p = new Photo(selectedFile.getAbsolutePath());
             p.date = calendar;
             for (Photo p1: currentAlbum.getAllPhotos()){
@@ -471,9 +541,21 @@ public class AlbumController{
             changePage();
         }
     }
-
+    /**
+     * 
+     * sets off a flag that the delete photo button has been clicked
+     * and informs the user to click the photo they want to delete.
+     */
     @FXML
     private void deletePhoto() {
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
+        }
         captionClicked = false;
         addTagClicked = false;
          deleteTagClicked = false;
@@ -487,7 +569,11 @@ public class AlbumController{
       alert.setContentText("Please click on an image to delete it from the album.");
       alert.showAndWait();
     }
-
+    /**
+     * sets off a flag that the copy photo button has been clicked
+     * and informs the user to choose a photo he/she wants to copy
+     * to another album 
+     */
     @FXML
     private void copyPhoto() {
         if (UserController.user.getAlbums().size() <2){
@@ -497,6 +583,14 @@ public class AlbumController{
             alert.setContentText("No other album found.");
             alert.showAndWait();
             return;
+        }
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
         }
         captionClicked = false;
         addTagClicked = false;
@@ -512,7 +606,12 @@ public class AlbumController{
       alert.setContentText("Please click on the image you would like to copy to another album.");
       alert.showAndWait();
     }
-
+    /**
+     * 
+     * sets off a flag that the move photo has been clicked
+     * and informs the user to choose a photo they would like to 
+     * move to another album.
+     */
     @FXML
     private void movePhoto() {
         if (UserController.user.getAlbums().size() <2){
@@ -522,6 +621,14 @@ public class AlbumController{
             alert.setContentText("No other album found.");
             alert.showAndWait();
             return;
+        }
+        if (currentAlbum.getAllPhotos().size() ==0){
+            Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("There are no photos in this album.");
+        alert.showAndWait();
+        return;
         }
         captionClicked = false;
         addTagClicked = false;
@@ -537,9 +644,12 @@ public class AlbumController{
       alert.showAndWait();
 
     }
-
+    /**
+     * 
+     * displays all images in the current album in a stage where the user can go through their
+     * photos in a manual slideshow
+     */
     @FXML
-
     private void executeSlideshow(){
         try{
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/Slideshow.fxml"));
@@ -556,8 +666,11 @@ public class AlbumController{
 
 
     }
+    /**
+     * sets off a flag that the display photo button has been clicked and 
+     * informs the user to choose a photo he/she would like to display
+     */
     @FXML
-
     private void displayPhoto(){
         if (currentAlbum.getAllPhotos().isEmpty()){
             Alert alert = new Alert(AlertType.ERROR);
@@ -580,7 +693,12 @@ public class AlbumController{
       alert.setContentText("Please click on the image you would like to display.");
       alert.showAndWait();
     }
-
+    /**
+     * 
+     * this method is used by other methods to update the fxml file whenever any
+     * changes to the page are made. It updates the 6 images displayed on the page as well
+     * as the captions 
+     */
     @FXML
     private void changePage(){
         if (isStock){
@@ -705,6 +823,12 @@ public class AlbumController{
         }
     
     }
+    /**
+     * helper method used by the change page method that calculates how many photos are on the current page
+     * @param startIndex the start index in the arraylist listofphotos
+     * @param photoCount the total number of photos in the arraylist listofphotos
+     * @return returns the number of photos that can be loaded to the current page
+     */
     private int numPhotosonPage(int startIndex, int photoCount){
 
         if (startIndex >= photoCount){
@@ -713,6 +837,12 @@ public class AlbumController{
         return Math.min(6, photoCount -startIndex);
 
     }
+    /**
+     * helper method used by the changePage method that loads the image files into the image views and displays them
+     * @param numPhotos the number of photos to be loaded
+     * @param startIndex the start index in the listofphotos arraylist that will be used to find the image paths
+     * @throws IOException
+     */
     private void loadImageHelper(int numPhotos, int startIndex) throws IOException{
         if (numPhotos>=1){
             String path1 = currentAlbum.getAllPhotos().get(startIndex).path;
@@ -765,6 +895,12 @@ public class AlbumController{
             caption6.setText(cap6);
         }
     }
+    /**
+     * 
+     * Handles all events of image 1 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     */
     @FXML
     public void img1clicked(){
         if (img1.getImage().equals(null)){
@@ -804,10 +940,8 @@ public class AlbumController{
                 if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
                 if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
                 if (curPage ==9) index =48; if (curPage ==10) index =54;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
+                for (String s: UserController.user.tagNames){
+                    choices.add(s);
                 }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
@@ -835,6 +969,7 @@ public class AlbumController{
                             if (!choices.contains(n)){
                                 choices.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                UserController.user.tagNames.add(n);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
                                 successAlert.setContentText("Tag Type has been added.");
@@ -1188,6 +1323,13 @@ public class AlbumController{
         }
        
     }
+    /**
+     * 
+     * 
+     * Handles all events of image 2 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     */
     @FXML
     public void img2clicked(){
         if (img2.getImage().equals(null)){
@@ -1227,10 +1369,9 @@ public class AlbumController{
             if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
             if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
             if (curPage ==9) index =49; if (curPage ==10) index =55;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
-                }
+            for (String s: UserController.user.tagNames){
+                choices.add(s);
+            }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
                 dialog.setTitle("Add Tag");
@@ -1256,6 +1397,7 @@ public class AlbumController{
 
                             if (!choices.contains(n)){
                                 choices.add(n);
+                                UserController.user.tagNames.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
@@ -1612,6 +1754,13 @@ public class AlbumController{
         }
         
     }
+    /**
+     * 
+     * 
+     * Handles all events of image 3 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     */
     @FXML
     public void img3clicked(){
         if (img3.getImage().equals(null)){
@@ -1652,10 +1801,9 @@ public class AlbumController{
             if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
             if (curPage ==9) index =50; if (curPage ==10) index =56;
 
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
-                }
+            for (String s: UserController.user.tagNames){
+                choices.add(s);
+            }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
                 dialog.setTitle("Add Tag");
@@ -1681,6 +1829,7 @@ public class AlbumController{
 
                             if (!choices.contains(n)){
                                 choices.add(n);
+                                UserController.user.tagNames.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
@@ -2038,6 +2187,12 @@ public class AlbumController{
         }
         
     }
+    /**
+     * 
+     * Handles all events of image 4 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     */
     @FXML
     public void img4clicked(){
         if (img4.getImage().equals(null)){
@@ -2077,10 +2232,9 @@ public class AlbumController{
             if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
             if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
             if (curPage ==9) index =51; if (curPage ==10) index =57;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
-                }
+            for (String s: UserController.user.tagNames){
+                choices.add(s);
+            }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
                 dialog.setTitle("Add Tag");
@@ -2106,6 +2260,7 @@ public class AlbumController{
 
                             if (!choices.contains(n)){
                                 choices.add(n);
+                                UserController.user.tagNames.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
@@ -2462,6 +2617,13 @@ public class AlbumController{
         }
         
     }
+    /**
+     * 
+     * 
+     * Handles all events of image 5 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     */
     @FXML
     public void img5clicked(){
         if (img5.getImage().equals(null)){
@@ -2501,9 +2663,8 @@ public class AlbumController{
                 if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
                 if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
                 if (curPage ==9) index =52; if (curPage ==10) index =58;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
+                for (String s: UserController.user.tagNames){
+                    choices.add(s);
                 }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
@@ -2530,6 +2691,7 @@ public class AlbumController{
 
                             if (!choices.contains(n)){
                                 choices.add(n);
+                                UserController.user.tagNames.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
@@ -2885,6 +3047,13 @@ public class AlbumController{
         }
         
     }
+    /**
+     * 
+     * Handles all events of image 6 being clicked. Checks which flags (if any)
+     * are set off and sends the appropriate dialogs to allow them to make the changes necessary to that photo file
+     * any updates and changes are then saved immediately by the admin listofusers array 
+     * 
+     */
     @FXML
     public void img6clicked(){
         if (img6.getImage().equals(null)){
@@ -2924,9 +3093,8 @@ public class AlbumController{
                 if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
                 if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
                 if (curPage ==9) index =53; if (curPage ==10) index =59;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
-                    choices.add(Tag.getTagName(temp.getTag()));
+                for (String s: UserController.user.tagNames){
+                    choices.add(s);
                 }
                 choices.add("new");
                 ChoiceDialog<String> dialog = new ChoiceDialog<>("name", choices);
@@ -2953,6 +3121,7 @@ public class AlbumController{
 
                             if (!choices.contains(n)){
                                 choices.add(n);
+                                UserController.user.tagNames.add(n);
                                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                                 successAlert.setTitle("Success");
                                 successAlert.setHeaderText(null);
