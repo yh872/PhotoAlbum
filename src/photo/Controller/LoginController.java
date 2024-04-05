@@ -51,6 +51,7 @@ public class LoginController {
                 try{
 
                     AlbumController.isStock = true;
+                    AlbumController.isSearch = false;
                     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
                     Parent root = fxmlLoader.load();
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();

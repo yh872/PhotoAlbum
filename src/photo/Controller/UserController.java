@@ -2,7 +2,9 @@ package photo.Controller;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
@@ -20,9 +22,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import photo.Model.Admin;
 import photo.Model.Album;
+import photo.Model.Photo;
+import photo.Model.Tag;
 import photo.Model.User;
 
 public class UserController implements Serializable {
@@ -56,10 +61,7 @@ public class UserController implements Serializable {
         String earliestDate = album.earliestDate();
         String latestDate = album.latestDate();
         
-        // Format the dates as needed
         String dateRange = earliestDate + "-" + latestDate;
-        
-        // Combine album data into a single string
         String combinedData = "Album Name: " + albumName + " | Number of Photos: " + numPhotos + " | Date Range: " + dateRange;
         return combinedData;
     }
@@ -101,6 +103,8 @@ public class UserController implements Serializable {
         if (userAlbums == null){
             return;
         }
+        from.setEditable(false);
+        to.setEditable(false);
 
         for (int i = 0; i <userAlbums.size(); i++) {
             String albumData = combineAlbumData(userAlbums.get(i));
@@ -121,16 +125,298 @@ public class UserController implements Serializable {
         } else if ("Disjunctive Tag Search".equals(selectedOption)) {
             searchTarget.setPromptText("name=Adam,location=Prague");
         }
-        // Add more conditions as needed for other options
+    }
+
+    private boolean isValiddoubleTag(String s){
+        if (!s.contains(",")){
+            return false;
+        }
+        if (s.contains(" ")){
+            return false;
+        }
+        String[] parts = s.split(",");
+        if (parts.length ==1){
+            return false;
+        }
+        if (parts[1].length() <3){
+            return false;
+        }
+
+        for (String part: parts){
+            if (!Tag.isValidTag(part)){
+                return false;
+            }
+        }
+        return true;
+
     }
     @FXML
     public void searchTag(ActionEvent e){
 
+        String searchType = TagSearchBox.getValue();
+        String tags = searchTarget.getText();
+        Album temp = new Album("tempalbum" + Math.random());
+
+        if (searchType.equals("Single Tag Search")){
+            if (!Tag.isValidTag(tags)){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Invalid input. Make sure your input is the form 'name=value'.");
+                alert.showAndWait();
+                return;
+
+            }
+            for (Album tempAlb: user.getAlbums()){
+                for (Photo p: tempAlb.getAllPhotos()){
+                    for (Tag t: p.listofTags){
+                        if (t.getTag().equals(tags) && !temp.getAllPhotos().contains(p)){
+                            temp.addPhoto(p);
+                        }
+                    }
+                }
+            }
+            if (temp.getAllPhotos().size() == 0){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("No photos found with this tag.");
+                alert.showAndWait();
+                return;
+
+            }
+            else{
+                AlbumController.isSearch = true;
+                AlbumController.currentAlbum = temp;
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
+                    Parent root = fxmlLoader.load();
+                    Stage stage = (Stage) ((javafx.scene.Node) e.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.setTitle("Search results");
+                    stage.show();
+                } catch (IOException excp) {
+                    excp.printStackTrace();
+                }
+
+
+            }
+
+           
+
+        }
+
+        else if (searchType.equals("Conjunctive Tag Search")){
+            if (!isValiddoubleTag(tags)){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Invalid input. Make sure your input is the form 'name=value,name=value'.");
+                alert.showAndWait();
+                return;
+
+
+            }
+            String parts[] = tags.split(",");
+             String tag1 = parts[0];
+             String tag2 = parts[1];
+             boolean tag1found = false;
+             boolean tag2found = false;
+             for (Album tempAlb: user.getAlbums()){
+                for (Photo p: tempAlb.getAllPhotos()){
+                    for (Tag t: p.listofTags){
+                        if (t.getTag().equals(tag1)){
+                            tag1found = true;
+                        }
+                        if (t.getTag().equals(tag2)){
+                            tag2found = true;
+                        }
+                    }
+                    if (tag1found && tag2found && !temp.getAllPhotos().contains(p)){
+                        temp.addPhoto(p);
+                    }
+                    tag1found=false;
+                    tag2found=false;
+                }
+            }
+            if (temp.getAllPhotos().size() == 0){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("No photos found with these tag.");
+                alert.showAndWait();
+                return;
+
+            }
+            else{
+                AlbumController.isSearch = true;
+                AlbumController.currentAlbum = temp;
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
+                    Parent root = fxmlLoader.load();
+                    Stage stage = (Stage) ((javafx.scene.Node) e.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.setTitle("Search results");
+                    stage.show();
+                } catch (IOException excp) {
+                    excp.printStackTrace();
+                }
+
+            }
+
+        }
+
+        else if ((searchType.equals("Disjunctive Tag Search"))){
+            if (!isValiddoubleTag(tags)){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Invalid input. Make sure your input is the form 'name=value,name=value'.");
+                alert.showAndWait();
+                return;
+
+
+            }
+            String parts[] = tags.split(",");
+             String tag1 = parts[0];
+             String tag2 = parts[1];
+             boolean tag1found = false;
+             boolean tag2found = false;
+             for (Album tempAlb: user.getAlbums()){
+                for (Photo p: tempAlb.getAllPhotos()){
+                    for (Tag t: p.listofTags){
+                        if (t.getTag().equals(tag1)){
+                            tag1found = true;
+                        }
+                        if (t.getTag().equals(tag2)){
+                            tag2found = true;
+                        }
+                    }
+                    if ((tag1found || tag2found) && !temp.getAllPhotos().contains(p)){
+                        temp.addPhoto(p);
+                    }
+                    tag1found=false;
+                    tag2found=false;
+                }
+            }
+            if (temp.getAllPhotos().size() == 0){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("No photos found with these tag.");
+                alert.showAndWait();
+                return;
+
+            }
+            else{
+                AlbumController.isSearch = true;
+                AlbumController.currentAlbum = temp;
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
+                    Parent root = fxmlLoader.load();
+                    Stage stage = (Stage) ((javafx.scene.Node) e.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.setTitle("Search results");
+                    stage.show();
+                } catch (IOException excp) {
+                    excp.printStackTrace();
+                }
+
+            }
+
+        }
     }   
+
+    
 
     @FXML
     public void searchDate(ActionEvent e){
-        
+        if (from.getValue() == null || to.getValue() == null){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("date field(s) are not filled out.");
+            alert.showAndWait();
+            return;
+        }
+        LocalDate fromDateValue = from.getValue();
+        LocalDate toDateValue = to.getValue();
+        if (toDateValue.isBefore(fromDateValue)){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Invalid date range.");
+            alert.showAndWait();
+            return;
+        }
+        Calendar fromCal = Calendar.getInstance();
+        fromCal.clear(); 
+        fromCal.set(Calendar.MILLISECOND, 0);
+        fromCal.set(Calendar.SECOND, 0);
+        fromCal.set(Calendar.MINUTE, 0);
+        fromCal.set(Calendar.HOUR_OF_DAY, 0);
+        fromCal.set(Calendar.YEAR, fromDateValue.getYear());
+        fromCal.set(Calendar.MONTH, fromDateValue.getMonthValue() - 1); 
+        fromCal.set(Calendar.DAY_OF_MONTH, fromDateValue.getDayOfMonth());
+
+        Calendar toCal = Calendar.getInstance();
+        toCal.clear(); 
+        toCal.set(Calendar.MILLISECOND, 0);
+        toCal.set(Calendar.SECOND, 0);
+        toCal.set(Calendar.MINUTE, 0);
+        toCal.set(Calendar.HOUR_OF_DAY, 0);
+
+        toCal.set(Calendar.YEAR, toDateValue.getYear());
+        toCal.set(Calendar.MONTH, toDateValue.getMonthValue() - 1); 
+        toCal.set(Calendar.DAY_OF_MONTH, toDateValue.getDayOfMonth());
+        Album temp = new Album("tempalbum" + Math.random());
+        for (Album tempAlb: user.getAlbums()){
+            for (Photo p: tempAlb.getAllPhotos()){
+                p.date.set(Calendar.MILLISECOND, 0);
+                p.date.set(Calendar.SECOND, 0);
+                p.date.set(Calendar.MINUTE, 0);
+                p.date.set(Calendar.HOUR_OF_DAY, 0);
+                if (fromCal.getTimeInMillis() <= p.date.getTimeInMillis() && p.date.getTimeInMillis() <= toCal.getTimeInMillis() && !temp.getAllPhotos().contains(p) ){
+                    
+                    temp.addPhoto(p);
+                }
+                if (temp.getAllPhotos().size() >= 60){
+                    break;
+                }
+                
+            }
+            if (temp.getAllPhotos().size() >= 60){
+                break;
+            }
+        }
+        if (temp.getAllPhotos().size() == 0){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No photos in this date range");
+            alert.showAndWait();
+            return;
+
+        }
+        else{
+            AlbumController.isSearch = true;
+            AlbumController.currentAlbum = temp;
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/AlbumView.fxml"));
+                Parent root = fxmlLoader.load();
+                Stage stage = (Stage) ((javafx.scene.Node) e.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.setTitle("Search results");
+                stage.show();
+            } catch (IOException excp) {
+                excp.printStackTrace();
+            }
+
+        }
     }
     @FXML
     public void logout(ActionEvent event){
@@ -200,6 +486,7 @@ public class UserController implements Serializable {
 
     @FXML
     public void openAlbum(ActionEvent event) {
+        AlbumController.isSearch = false;
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Open Album");
         dialog.setHeaderText("Enter the name of the album you want to open:");

@@ -36,6 +36,7 @@ import photo.Model.Tag;
 
 public class AlbumController{
     public static boolean isStock = false;
+    public static boolean isSearch = false;
     public static Album currentAlbum = null;
     public static boolean captionClicked = false;
     public static boolean addTagClicked = false;
@@ -68,6 +69,9 @@ public class AlbumController{
 
     @FXML
     private ImageView img2;
+
+    @FXML
+    private Button createAlbumButton;
 
     @FXML
     private ImageView img3;
@@ -106,6 +110,7 @@ public class AlbumController{
 
         @FXML
     public void initialize() throws FileNotFoundException{
+
         captionClicked = false;
         addTagClicked = false;
          deleteTagClicked = false;
@@ -113,13 +118,59 @@ public class AlbumController{
       copyPhotoClicked = false;
       movePhotoClicked = false;
       displayPhotoClicked = false;
+      createAlbumButton.setDisable(true);
+      createAlbumButton.setVisible(false);
         ObservableList<Integer> items = FXCollections.observableArrayList();
         items.addAll(1,2,3,4,5,6,7,8,9,10);
         pageSelector.setItems(items);
         pageSelector.setValue(1);
+
+        if (isSearch){
+            createAlbumButton.setDisable(false);
+            createAlbumButton.setVisible(true);
+            addPhotoButton.setDisable(true);
+            addPhotoButton.setVisible(false);
+           deleteTagButton.setDisable(true);
+           deleteTagButton.setVisible(false);
+           addTagButton.setDisable(true);
+           addTagButton.setVisible(false);
+           deletePhotoButton.setDisable(true);
+           deletePhotoButton.setVisible(false);
+           caption.setDisable(true);
+           caption.setVisible(false);
+           copyPhotoButton.setDisable(true);
+           copyPhotoButton.setVisible(false);
+           movePhotoButton.setDisable(true);
+           movePhotoButton.setVisible(false);
+           Album_name.setVisible(false);
+           displayButton.setVisible(false);
+           displayButton.setDisable(true);
+           slideshow.setVisible(false);
+           slideshow.setDisable(true);
+
+        changePage();
+
+
+        }
         if (isStock){
+            Album_name.setText("Stock Album");
             try{
-                
+            currentAlbum = new Album("stock");
+            currentAlbum.addPhoto(new Photo("data/manStockphoto.jpg"));
+            currentAlbum.addPhoto(new Photo("data/DanceStockPhoto.jpg"));
+            currentAlbum.addPhoto(new Photo("data/FamilyStockPhoto.jpg"));
+            currentAlbum.addPhoto(new Photo("data/IslandStockPhoto.jpg"));
+            currentAlbum.addPhoto(new Photo("data/catStockPhoto.jpg"));
+            currentAlbum.addPhoto(new Photo("data/basketballStock.jpg"));
+            for (Photo p: currentAlbum.getAllPhotos()){
+                File file = new File(p.path);
+                Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(file.lastModified());
+            calendar.set(Calendar.MILLISECOND, 0);
+            p.date = calendar;
+            }
+           
+
             InputStream stream1 = new FileInputStream("data/manStockphoto.jpg"); 
             InputStream stream2 = new FileInputStream("data/DanceStockPhoto.jpg");
             InputStream stream3 = new FileInputStream("data/FamilyStockPhoto.jpg");
@@ -153,6 +204,7 @@ public class AlbumController{
            caption.setDisable(true);
            copyPhotoButton.setDisable(true);
            pageSelector.setDisable(true);
+           movePhotoButton.setDisable(true);
 
            pageSelector.setVisible(false);
            pageNumberlabel.setVisible(false);
@@ -221,6 +273,74 @@ public class AlbumController{
 
     }
     @FXML
+    private void createAlbum(ActionEvent event){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Album Name");
+        dialog.setHeaderText("Enter the name of your new album:");
+        dialog.setContentText("Album Name: ");
+        dialog.showAndWait().ifPresent(name -> {
+            if (name.isEmpty()){
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("name is empty.");
+                alert.showAndWait();
+                return;
+
+            }
+            for (Album a :UserController.user.getAlbums()){
+                if (a.albumName.equals(name)){
+                    Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("album name taken.");
+                alert.showAndWait();
+                return;
+                }
+            }
+            UserController.user.addAlbum(name);
+            for (Album a: UserController.user.getAlbums()){
+                if (a.albumName.equals(name)){
+                    for (Photo p: currentAlbum.getAllPhotos()){
+                        a.addPhoto(p);
+                    }
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Album succesfully created");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Your album has been succesfully created and added to your album list");
+                    alert.showAndWait();
+
+                    try{
+                        Admin.WritetoFile();
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                    try{
+
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../View/UserView.fxml"));
+                        Parent root = fxmlLoader.load();
+                        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                        Scene scene = new Scene(root);
+                             stage.setScene(scene);
+                            stage.setTitle("Stock Album");
+                            stage.show();
+                            return;
+                            
+                        }
+                        catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    
+                }
+            }
+
+
+        });
+
+    }
+
+    @FXML
     private void setCaption() {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Add Caption");
@@ -261,6 +381,7 @@ public class AlbumController{
       copyPhotoClicked = false;
       movePhotoClicked = false;
       displayPhotoClicked = false;
+
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Delete Tag");
       alert.setHeaderText(null);
@@ -394,6 +515,14 @@ public class AlbumController{
 
     @FXML
     private void movePhoto() {
+        if (UserController.user.getAlbums().size() <2){
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No other album found.");
+            alert.showAndWait();
+            return;
+        }
         captionClicked = false;
         addTagClicked = false;
          deleteTagClicked = false;
@@ -676,6 +805,7 @@ public class AlbumController{
                 if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
                 if (curPage ==9) index =48; if (curPage ==10) index =54;
                 for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    
                 if (!(Tag.getTagName(temp.getTag()).equalsIgnoreCase("location") || Tag.getTagName(temp.getTag()).equalsIgnoreCase("name") ))
                     choices.add(Tag.getTagName(temp.getTag()));
                 }
@@ -692,6 +822,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -705,6 +844,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                             if (curPage ==1) i =0; if (curPage ==2) i =6; if (curPage ==3) i =12; if (curPage ==4) i =18;
@@ -748,7 +896,14 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
-                        
+                        if (value.isBlank()){
+                            Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Value entered.");
+                                successAlert.showAndWait();
+                                return;
+                        }
                         Tag temptag = new Tag(type, value);
                         int i = 0;
                 if (curPage ==1) i =0; if (curPage ==2) i =6; if (curPage ==3) i =12; if (curPage ==4) i =18;
@@ -793,49 +948,64 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                int index = 0;
-                if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
-                if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
-                if (curPage ==9) index =48; if (curPage ==10) index =54;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =0; if (curPage ==2) index =6; if (curPage ==3) index =12; if (curPage ==4) index =18;
+            if (curPage ==5) index =24; if (curPage ==6) index =30; if (curPage ==7) index =36; if (curPage ==8) index =42;
+            if (curPage ==9) index =48; if (curPage ==10) index =54;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                if (!Tag.getTagValue(temp.getTag()).equals("")){ choices.add(temp.getTag());}
+                
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =0; if (curPage ==2) a =6; if (curPage ==3) a =12; if (curPage ==4) a =18;
+            if (curPage ==5) a =24; if (curPage ==6) a =30; if (curPage ==7) a =36; if (curPage ==8) a =42;
+            if (curPage ==9) a =48; if (curPage ==10) a =54;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
-            
+
         }
         else if (deletePhotoClicked){
             
@@ -1074,6 +1244,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -1087,6 +1266,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                             if (curPage ==1) i =1; if (curPage ==2) i =7; if (curPage ==3) i =13; if (curPage ==4) i =19;
@@ -1130,6 +1318,15 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
+                        if (value.isBlank()){
+                            Alert fail = new Alert(Alert.AlertType.ERROR);
+                            fail.setTitle("Error");
+                            fail.setHeaderText(null);
+                            fail.setContentText("No Tag Type entered.");
+                            fail.showAndWait();
+                         return;
+
+                        }
                         
                         Tag temptag = new Tag(type, value);
                         int i = 0;
@@ -1175,48 +1372,63 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                int index = 0;
-                if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
-                if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
-                if (curPage ==9) index =49; if (curPage ==10) index =55;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =1; if (curPage ==2) index =7; if (curPage ==3) index =13; if (curPage ==4) index =19;
+            if (curPage ==5) index =25; if (curPage ==6) index =31; if (curPage ==7) index =37; if (curPage ==8) index =43;
+            if (curPage ==9) index =49; if (curPage ==10) index =55;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    choices.add(temp.getTag());
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =1; if (curPage ==2) a =7; if (curPage ==3) a =13; if (curPage ==4) a =19;
+            if (curPage ==5) a =25; if (curPage ==6) a =31; if (curPage ==7) a =37; if (curPage ==8) a =43;
+            if (curPage ==9) a =49; if (curPage ==10) a =55;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
+
             
         }
         else if (deletePhotoClicked){
@@ -1457,6 +1669,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -1470,6 +1691,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                 if (curPage ==1) i =2; if (curPage ==2) i =8; if (curPage ==3) i =14; if (curPage ==4) i =20;
@@ -1514,6 +1744,15 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
+                        if (value.isBlank()){
+                            Alert fail = new Alert(Alert.AlertType.ERROR);
+                            fail.setTitle("Error");
+                            fail.setHeaderText(null);
+                            fail.setContentText("No Tag Type entered.");
+                            fail.showAndWait();
+                         return;
+
+                        }
                         
                         Tag temptag = new Tag(type, value);
                         int i = 0;
@@ -1559,48 +1798,63 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                        int index = 0;
-                        if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
-                        if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
-                        if (curPage ==9) index =50; if (curPage ==10) index =56;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =2; if (curPage ==2) index =8; if (curPage ==3) index =14; if (curPage ==4) index =20;
+            if (curPage ==5) index =26; if (curPage ==6) index =32; if (curPage ==7) index =38; if (curPage ==8) index =44;
+            if (curPage ==9) index =50; if (curPage ==10) index =56;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    choices.add(temp.getTag());
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =2; if (curPage ==2) a =8; if (curPage ==3) a =14; if (curPage ==4) a =20;
+            if (curPage ==5) a =26; if (curPage ==6) a =32; if (curPage ==7) a =38; if (curPage ==8) a =44;
+            if (curPage ==9) a =50; if (curPage ==10) a =56;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
+
             
         }
         else if (deletePhotoClicked){
@@ -1840,6 +2094,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -1853,6 +2116,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                 if (curPage ==1) i =3; if (curPage ==2) i =9; if (curPage ==3) i =15; if (curPage ==4) i =21;
@@ -1896,6 +2168,15 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
+                        if (value.isBlank()){
+                            Alert fail = new Alert(Alert.AlertType.ERROR);
+                            fail.setTitle("Error");
+                            fail.setHeaderText(null);
+                            fail.setContentText("No Tag Type entered.");
+                            fail.showAndWait();
+                         return;
+
+                        }
                         
                         Tag temptag = new Tag(type, value);
                         int i = 0;
@@ -1941,48 +2222,63 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                int index = 0;
-                if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
-                if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
-                if (curPage ==9) index =51; if (curPage ==10) index =57;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =3; if (curPage ==2) index =9; if (curPage ==3) index =15; if (curPage ==4) index =21;
+            if (curPage ==5) index =27; if (curPage ==6) index =33; if (curPage ==7) index =39; if (curPage ==8) index =45;
+            if (curPage ==9) index =51; if (curPage ==10) index =57;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    choices.add(temp.getTag());
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =3; if (curPage ==2) a =9; if (curPage ==3) a =15; if (curPage ==4) a =21;
+            if (curPage ==5) a =27; if (curPage ==6) a =33; if (curPage ==7) a =39; if (curPage ==8) a =45;
+            if (curPage ==9) a =51; if (curPage ==10) a =57;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
+
             
         }
         else if (deletePhotoClicked){
@@ -2222,6 +2518,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -2235,6 +2540,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                                     if (curPage ==1) i =4; if (curPage ==2) i =10; if (curPage ==3) i =16; if (curPage ==4) i =22;
@@ -2278,6 +2592,15 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
+                        if (value.isBlank()){
+                            Alert fail = new Alert(Alert.AlertType.ERROR);
+                            fail.setTitle("Error");
+                            fail.setHeaderText(null);
+                            fail.setContentText("No Tag Type entered.");
+                            fail.showAndWait();
+                         return;
+
+                        }
                         
                         Tag temptag = new Tag(type, value);
                         int i = 0;
@@ -2323,49 +2646,63 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                int index = 0;
-                if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
-                if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
-                if (curPage ==9) index =52; if (curPage ==10) index =58;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =4; if (curPage ==2) index =10; if (curPage ==3) index =16; if (curPage ==4) index =22;
+            if (curPage ==5) index =28; if (curPage ==6) index =34; if (curPage ==7) index =40; if (curPage ==8) index =46;
+            if (curPage ==9) index =52; if (curPage ==10) index =58;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    choices.add(temp.getTag());
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =4; if (curPage ==2) a =10; if (curPage ==3) a =16; if (curPage ==4) a =22;
+            if (curPage ==5) a =28; if (curPage ==6) a =34; if (curPage ==7) a =40; if (curPage ==8) a =46;
+            if (curPage ==9) a =52; if (curPage ==10) a =58;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
-            
+
         }
         else if (deletePhotoClicked){
             
@@ -2604,6 +2941,15 @@ public class AlbumController{
                         d.setHeaderText("Enter a new type");
                         d.setContentText("Tag Type:");
                         d.showAndWait().ifPresent(n ->{
+                            if (n.isBlank()){
+                                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                                successAlert.setTitle("Error");
+                                successAlert.setHeaderText(null);
+                                successAlert.setContentText("No Tag Type entered.");
+                                successAlert.showAndWait();
+                                return;
+
+                            }
 
                             if (!choices.contains(n)){
                                 choices.add(n);
@@ -2617,6 +2963,15 @@ public class AlbumController{
                                 dial.setHeaderText("Enter a Value");
                                 dial.setContentText("Tag Value:");
                                 dial.showAndWait().ifPresent(v ->{
+                                    if (v.isBlank()){
+                                        Alert fail = new Alert(Alert.AlertType.ERROR);
+                                        fail.setTitle("Error");
+                                        fail.setHeaderText(null);
+                                        fail.setContentText("No Tag Type entered.");
+                                        fail.showAndWait();
+                                     return;
+
+                                    }
                                     Tag tag1 = new Tag(n, v);
                                     int i = 0;
                                     if (curPage ==1) i =5; if (curPage ==2) i =11; if (curPage ==3) i =17; if (curPage ==4) i =23;
@@ -2660,6 +3015,15 @@ public class AlbumController{
                     d.setHeaderText("Enter a Value");
                     d.setContentText("Tag Value:");
                     d.showAndWait().ifPresent(value ->{
+                        if (value.isBlank()){
+                            Alert fail = new Alert(Alert.AlertType.ERROR);
+                            fail.setTitle("Error");
+                            fail.setHeaderText(null);
+                            fail.setContentText("No Tag Type entered.");
+                            fail.showAndWait();
+                         return;
+
+                        }
                         
                         Tag temptag = new Tag(type, value);
                         int i = 0;
@@ -2705,49 +3069,63 @@ public class AlbumController{
         }
 
         else if (deleteTagClicked){
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Delete Tag");
-            dialog.setHeaderText("Enter a tag ('name=value') you would like to delete from this image: ");
-            dialog.setContentText("Tag:");
-            dialog.showAndWait().ifPresent(tag -> {
-                if (!Tag.isValidTag(tag)){
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Invalid Tag");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please enter a valid tag in the format 'name=value'.");
-                    alert.showAndWait();
-                    return;
-                        }
-                        Integer curPage = pageSelector.getValue(); 
-                int index = 0;
-                if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
-                if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
-                if (curPage ==9) index =53; if (curPage ==10) index =59;
-                for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
-                    if (tag.equals(temp.getTag())){
-                        currentAlbum.getAllPhotos().get(index).listofTags.remove(temp);
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                  alert.setTitle("Success");
-                    alert.setHeaderText(null);
-                     alert.setContentText("Tag has succesfully been removed");
-                     alert.showAndWait();
-                     try {
-                        Admin.WritetoFile();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    deleteTagClicked = false;
-                    return;
-                    }
+            ArrayList<String> choices = new ArrayList<>();
+
+            Integer curPage = pageSelector.getValue(); 
+            int index = 0;
+            if (curPage ==1) index =5; if (curPage ==2) index =11; if (curPage ==3) index =17; if (curPage ==4) index =23;
+            if (curPage ==5) index =29; if (curPage ==6) index =35; if (curPage ==7) index =41; if (curPage ==8) index =47;
+            if (curPage ==9) index =53; if (curPage ==10) index =59;
+            for (Tag temp : currentAlbum.getAllPhotos().get(index).listofTags ){
+                    choices.add(temp.getTag());
                 }
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tag Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No such Tag present for this image.");
-                alert.showAndWait();
+            if (choices.size() ==0){
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("This photo does not have any tags");
+                successAlert.showAndWait();
+                return;
+
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Delete Tag");
+            dialog.setHeaderText("Choose a tag to delete.");
+            dialog.setContentText("Tag: ");
+            dialog.showAndWait().ifPresent(type ->{
+                int a = 0;
+                if (curPage ==1) a =5; if (curPage ==2) a =11; if (curPage ==3) a =17; if (curPage ==4) a =23;
+            if (curPage ==5) a =29; if (curPage ==6) a =35; if (curPage ==7) a =41; if (curPage ==8) a =47;
+            if (curPage ==9) a =53; if (curPage ==10) a =59;
+                for (Tag temp : currentAlbum.getAllPhotos().get(a).listofTags){
+                    if (temp.getTag().equals(type)){
+                        currentAlbum.getAllPhotos().get(a).listofTags.remove(temp);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Sucess");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Tag has been succesfully removed.");
+                        successAlert.showAndWait();
+                        deleteTagClicked = false;
+
+                        try {
+                            Admin.WritetoFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+
+                    }
+
+                }
+                Alert successAlert = new Alert(Alert.AlertType.ERROR);
+                successAlert.setTitle("Error");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Tag not found.");
+                successAlert.showAndWait();
+
             });
-            
+
         }
         else if (deletePhotoClicked){
             

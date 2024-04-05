@@ -4,15 +4,18 @@ import java.util.ArrayList;
 
 public class User implements Serializable{
 
-  private static final long serialVersionUID = 9119115908251991069L;
+  private static final long serialVersionUID = 2L;
    
     private String username;
     private ArrayList<Album> listofAlbums;
 
 
+
+
     public User(String username){
         this.username = username;
         listofAlbums = new ArrayList<>();
+
        
     }
     public String getUsername(){

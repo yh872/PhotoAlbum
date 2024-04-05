@@ -1,3 +1,5 @@
+//Youssef Hanna and Victoria Permakoff
+
 package photo;
 
 import javafx.application.Application;

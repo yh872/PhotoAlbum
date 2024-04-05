@@ -93,5 +93,10 @@
       </Pane>
       <ChoiceBox fx:id="pageSelector" layoutX="583.0" layoutY="470.0" onAction="#changePage" prefWidth="150.0" />
       <Label fx:id="pageNumberlabel" layoutX="583.0" layoutY="446.0" prefHeight="17.0" prefWidth="119.0" text="Page Number:" />
+      <Button fx:id="createAlbumButton" layoutX="800.0" layoutY="459.0" mnemonicParsing="false" onAction="#createAlbum" prefHeight="48.0" prefWidth="185.0" text="Create Album">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Button>
     </children>
 </Pane>
