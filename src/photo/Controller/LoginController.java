@@ -81,12 +81,13 @@ public class LoginController {
             }
             else{
                 if (!Admin.containsUser(username))
-                { Admin.AddUser(username);
-                    try {
-	                    Admin.WritetoFile();
-	                } catch (IOException e) {
-	                    e.printStackTrace();
-	                }
+                { 
+                    Alert a = new Alert(AlertType.ERROR);
+                    a.setTitle("Error");
+                    a.setHeaderText(null);
+                    a.setContentText("A user with this username does not exist.");
+                    a.showAndWait();
+                    return;
                 }
                 try{
                     UserController.setUser(username);
