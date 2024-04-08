@@ -85,7 +85,7 @@ public class LoginController {
                     Alert a = new Alert(AlertType.ERROR);
                     a.setTitle("Error");
                     a.setHeaderText(null);
-                    a.setContentText("A user with this username does not exist.");
+                    a.setContentText("a user with this username does not exist.");
                     a.showAndWait();
                     return;
                 }
